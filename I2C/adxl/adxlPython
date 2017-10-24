@@ -1,0 +1,37 @@
+#!/usr/bin/python
+
+import smbus
+import time
+
+#first sudo apt-get install python-smbus
+
+bus = smbus.SMBus(1)
+address = 0x53
+def writeReg(reg0, reg1):
+	bus.write_byte_data(address, reg0, reg1)
+	return -1
+
+def readNumber(reg0, reg1):
+	data0 = bus.read_byte_data(address, reg0)
+        data1 = bus.read_byte_data(address, reg1)
+        
+        accl = ((data1 & 0x03)*256)+data0
+        if accl > 511:
+            accl -= 1024
+	
+        return accl
+
+writeReg(0x2C, 0x0A)
+writeReg(0x2D, 0x08)
+writeReg(0x31, 0x08)
+time.sleep(0.5)
+
+while True:
+	time.sleep(0.5)
+        xAccl = readNumber(0x32, 0x33)
+        yAccl = readNumber(0x34, 0x35)
+        zAccl = readNumber(0x36, 0x37)
+
+        print "X: ", xAccl
+        print "Y: ", yAccl
+        print "Z: ", zAccl
